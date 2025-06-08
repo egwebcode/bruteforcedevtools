@@ -2,18 +2,48 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>⚠️ IP HACKEADO ⚠️</title>
+  <title>⚠️ Verificação de Segurança</title>
   <style>
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background-color: #1a1a1a;
+      background-color: #111;
       color: white;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       height: 100vh;
+    }
+
+    #start-btn {
+      background-color: #ff4444;
+      color: white;
+      padding: 20px 40px;
+      font-size: 1.3em;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 0 15px #ff0000;
+      transition: background-color 0.3s;
+    }
+
+    #start-btn:hover {
+      background-color: #cc0000;
+    }
+
+    #alert-panel {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       animation: flash-bg 1s infinite;
+      height: 100vh;
+      width: 100vw;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background-color: #1a1a1a;
     }
 
     @keyframes flash-bg {
@@ -21,12 +51,11 @@
       50% { background-color: #3a0000; }
     }
 
-    #alert-panel {
+    .alert-box {
       background-color: #2b2b2b;
       border: 3px solid #ff0000;
       padding: 30px;
       border-radius: 15px;
-      width: 90%;
       max-width: 600px;
       box-shadow: 0 0 30px #ff0000;
       text-align: center;
@@ -42,7 +71,6 @@
     h1 {
       color: #ff4444;
       margin-bottom: 20px;
-      font-size: 1.8em;
     }
 
     .info {
@@ -61,32 +89,25 @@
 </head>
 <body>
 
+  <button id="start-btn">CLIQUE AQUI PARA BOT BLAZE</button>
+
   <div id="alert-panel">
-    <h1>⚠️ ALERTA DE SEGURANÇA</h1>
-    <div class="info" id="ip-msg">Carregando IP...</div>
+    <div class="alert-box">
+      <h1>⚠️ ALERTA DE SEGURANÇA</h1>
+      <div class="info" id="ip-msg">Carregando IP...</div>
+    </div>
   </div>
 
-  <!-- 3 instâncias do alarme tocando ao mesmo tempo em loop -->
-  <audio id="alarme1" src="alarme.m4a" loop></audio>
-  <audio id="alarme2" src="alarme.m4a" loop></audio>
-  <audio id="alarme3" src="alarme.m4a" loop></audio>
-
-  <!-- Apenas 1 instância do audio.mp3 tocando infinitamente -->
+  <audio id="alarme" src="alarme.m4a" loop></audio>
   <audio id="audio" src="audio.mp3" loop></audio>
 
   <script>
-    async function iniciarPegadinha() {
-      // Toca 3 instâncias do alarme ao mesmo tempo
-      try {
-        document.getElementById("alarme1").play();
-        document.getElementById("alarme2").play();
-        document.getElementById("alarme3").play();
-        document.getElementById("audio").play();
-      } catch (e) {
-        console.warn("Autoplay pode estar bloqueado no navegador.");
-      }
+    document.getElementById("start-btn").addEventListener("click", async () => {
+      // Esconde botão e mostra alerta
+      document.getElementById("start-btn").style.display = "none";
+      document.getElementById("alert-panel").style.display = "flex";
 
-      // Busca IP público real
+      // Busca o IP
       try {
         const resposta = await fetch("https://api.ipify.org?format=json");
         const dados = await resposta.json();
@@ -95,13 +116,20 @@
         document.getElementById("ip-msg").innerHTML =
           `⚠️ SEU IP <span style="color:#ff6666">${ip}</span> FOI HACKEADO E INVADIDO!`;
       } catch (erro) {
-        document.getElementById("ip-msg").innerHTML =
+        document.getElementById("ip-msg").innerText =
           `⚠️ SEU IP FOI HACKEADO E INVADIDO!`;
       }
-    }
 
-    // Executa automaticamente ao abrir o site
-    window.onload = iniciarPegadinha;
+      // Dá play nos áudios
+      setTimeout(() => {
+        try {
+          document.getElementById("alarme").play();
+          document.getElementById("audio").play();
+        } catch (e) {
+          console.warn("⚠️ Navegador bloqueou o autoplay.");
+        }
+      }, 500);
+    });
   </script>
 
 </body>
