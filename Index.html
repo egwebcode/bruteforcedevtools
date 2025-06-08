@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Alerta de Segurança</title>
+  <title>⚠️ IP HACKEADO ⚠️</title>
   <style>
     body {
       margin: 0;
@@ -13,34 +13,30 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
+      animation: flash-bg 1s infinite;
     }
 
-    #start-button {
-      padding: 20px 40px;
-      font-size: 1.5em;
-      border: none;
-      border-radius: 10px;
-      background-color: #e60000;
-      color: white;
-      cursor: pointer;
-      box-shadow: 0 0 20px #ff0000;
-      transition: background-color 0.3s ease;
-    }
-
-    #start-button:hover {
-      background-color: #cc0000;
+    @keyframes flash-bg {
+      0%, 100% { background-color: #1a1a1a; }
+      50% { background-color: #3a0000; }
     }
 
     #alert-panel {
-      display: none;
       background-color: #2b2b2b;
-      border: 2px solid #ff0000;
+      border: 3px solid #ff0000;
       padding: 30px;
       border-radius: 15px;
       width: 90%;
       max-width: 600px;
       box-shadow: 0 0 30px #ff0000;
       text-align: center;
+      animation: flash-border 0.7s infinite;
+    }
+
+    @keyframes flash-border {
+      0% { box-shadow: 0 0 10px #ff0000; }
+      50% { box-shadow: 0 0 30px #ff0000; }
+      100% { box-shadow: 0 0 10px #ff0000; }
     }
 
     h1 {
@@ -65,39 +61,47 @@
 </head>
 <body>
 
-  <button id="start-button" onclick="startPrank()">CLIQUE AQUI</button>
-
   <div id="alert-panel">
     <h1>⚠️ ALERTA DE SEGURANÇA</h1>
     <div class="info" id="ip-msg">Carregando IP...</div>
   </div>
 
-  <audio id="alarm-audio" src="Alarme.m4a" loop></audio>
-  <audio id="extra-audio" src="audio.mp3" loop></audio>
+  <!-- 3 instâncias do alarme tocando ao mesmo tempo em loop -->
+  <audio id="alarme1" src="alarme.m4a" loop></audio>
+  <audio id="alarme2" src="alarme.m4a" loop></audio>
+  <audio id="alarme3" src="alarme.m4a" loop></audio>
+
+  <!-- Apenas 1 instância do audio.mp3 tocando infinitamente -->
+  <audio id="audio" src="audio.mp3" loop></audio>
 
   <script>
-    async function startPrank() {
-      // Esconde o botão, mostra o painel
-      document.getElementById("start-button").style.display = "none";
-      document.getElementById("alert-panel").style.display = "block";
-
-      // Toca os dois áudios em loop
-      document.getElementById("alarm-audio").play();
-      document.getElementById("extra-audio").play();
-
-      // Busca o IP real
+    async function iniciarPegadinha() {
+      // Toca 3 instâncias do alarme ao mesmo tempo
       try {
-        const res = await fetch("https://api.ipify.org?format=json");
-        const data = await res.json();
-        const ip = data.ip;
+        document.getElementById("alarme1").play();
+        document.getElementById("alarme2").play();
+        document.getElementById("alarme3").play();
+        document.getElementById("audio").play();
+      } catch (e) {
+        console.warn("Autoplay pode estar bloqueado no navegador.");
+      }
+
+      // Busca IP público real
+      try {
+        const resposta = await fetch("https://api.ipify.org?format=json");
+        const dados = await resposta.json();
+        const ip = dados.ip;
 
         document.getElementById("ip-msg").innerHTML =
-          `⚠️ SEU IP <span style="color:#ff6666">${ip}</span> FOI HACKEADO!`;
-      } catch (e) {
+          `⚠️ SEU IP <span style="color:#ff6666">${ip}</span> FOI HACKEADO E INVADIDO!`;
+      } catch (erro) {
         document.getElementById("ip-msg").innerHTML =
-          `⚠️ SEU IP FOI HACKEADO!`;
+          `⚠️ SEU IP FOI HACKEADO E INVADIDO!`;
       }
     }
+
+    // Executa automaticamente ao abrir o site
+    window.onload = iniciarPegadinha;
   </script>
 
 </body>
