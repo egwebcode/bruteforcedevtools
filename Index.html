@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Alerta de Segurança</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #1a1a1a;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    #start-button {
+      padding: 20px 40px;
+      font-size: 1.5em;
+      border: none;
+      border-radius: 10px;
+      background-color: #e60000;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 0 20px #ff0000;
+      transition: background-color 0.3s ease;
+    }
+
+    #start-button:hover {
+      background-color: #cc0000;
+    }
+
+    #alert-panel {
+      display: none;
+      background-color: #2b2b2b;
+      border: 2px solid #ff0000;
+      padding: 30px;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: 0 0 30px #ff0000;
+      text-align: center;
+    }
+
+    h1 {
+      color: #ff4444;
+      margin-bottom: 20px;
+      font-size: 1.8em;
+    }
+
+    .info {
+      background-color: #1e1e1e;
+      padding: 20px;
+      border-radius: 8px;
+      font-size: 1.3em;
+      font-weight: bold;
+      border-left: 5px solid #ff4444;
+    }
+
+    audio {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <button id="start-button" onclick="startPrank()">CLIQUE AQUI</button>
+
+  <div id="alert-panel">
+    <h1>⚠️ ALERTA DE SEGURANÇA</h1>
+    <div class="info" id="ip-msg">Carregando IP...</div>
+  </div>
+
+  <audio id="alarm-audio" src="Alarme.m4a" loop></audio>
+  <audio id="extra-audio" src="audio.mp3" loop></audio>
+
+  <script>
+    async function startPrank() {
+      // Esconde o botão, mostra o painel
+      document.getElementById("start-button").style.display = "none";
+      document.getElementById("alert-panel").style.display = "block";
+
+      // Toca os dois áudios em loop
+      document.getElementById("alarm-audio").play();
+      document.getElementById("extra-audio").play();
+
+      // Busca o IP real
+      try {
+        const res = await fetch("https://api.ipify.org?format=json");
+        const data = await res.json();
+        const ip = data.ip;
+
+        document.getElementById("ip-msg").innerHTML =
+          `⚠️ SEU IP <span style="color:#ff6666">${ip}</span> FOI HACKEADO!`;
+      } catch (e) {
+        document.getElementById("ip-msg").innerHTML =
+          `⚠️ SEU IP FOI HACKEADO!`;
+      }
+    }
+  </script>
+
+</body>
+</html>
